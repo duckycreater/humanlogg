@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – LoRa Mesh Simulator
+   FloodLink – LoRa Mesh Simulator
    ============================================ */
 
 class LoRaSimulator {

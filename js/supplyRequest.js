@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Yêu cầu hàng cứu trợ
+   FloodLink – Yêu cầu hàng cứu trợ
    Citizen supply request system
    ============================================ */
 
@@ -24,8 +24,11 @@ class SupplyRequest {
 
     const isAdmin = typeof authManager !== 'undefined' && authManager.isAdmin;
 
+    // Get real-time inventory from SuppliesMode
+    const inventory = typeof suppliesMode !== 'undefined' ? suppliesMode.getSupplies() : [];
+
     panel.innerHTML = `
-      <div style="display:grid; grid-template-columns:${isAdmin ? '1fr 1fr' : '1fr'}; gap:var(--space-4); padding:var(--space-6); height:100%; overflow-y:auto;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); padding:var(--space-5); height:100%; overflow-y:auto;">
 
         <!-- LEFT: Request Form -->
         <div style="display:flex; flex-direction:column; gap:var(--space-4);">
@@ -44,26 +47,24 @@ class SupplyRequest {
           <!-- Form -->
           <div class="card">
             <h3 style="font-size:var(--text-sm); font-weight:var(--font-bold); margin-bottom:var(--space-3);">📝 Thông tin yêu cầu</h3>
-
             <div style="display:grid; gap:var(--space-3);">
               <div>
                 <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Họ tên người yêu cầu *</label>
                 <input type="text" id="req-name" class="health-input" placeholder="Nhập họ tên..." />
               </div>
-
               <div>
                 <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Địa chỉ / Khu vực *</label>
                 <input type="text" id="req-address" class="health-input" placeholder="VD: Xóm 3, xã Phúc Xá, Ba Đình..." />
               </div>
-
-              <div>
-                <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Số điện thoại</label>
-                <input type="tel" id="req-phone" class="health-input" placeholder="0xxx-xxx-xxx" />
-              </div>
-
-              <div>
-                <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Số người cần hỗ trợ</label>
-                <input type="number" id="req-people" class="health-input" placeholder="1" min="1" max="200" value="1" />
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3);">
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">SĐT</label>
+                  <input type="tel" id="req-phone" class="health-input" placeholder="0xxx-xxx-xxx" />
+                </div>
+                <div>
+                  <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Số người</label>
+                  <input type="number" id="req-people" class="health-input" placeholder="1" min="1" max="200" value="1" />
+                </div>
               </div>
             </div>
           </div>
@@ -83,12 +84,10 @@ class SupplyRequest {
                 </button>
               `).join('')}
             </div>
-
             <div id="req-items-area" style="display:none;">
               <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Chọn mặt hàng cụ thể:</label>
               <div id="req-items-list" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
             </div>
-
             <div style="margin-top:var(--space-3);">
               <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Ghi chú thêm</label>
               <textarea id="req-note" class="health-textarea" rows="2" placeholder="VD: Có 2 trẻ nhỏ dưới 3 tuổi, cần sữa bột khẩn..."></textarea>
@@ -100,42 +99,48 @@ class SupplyRequest {
             <button class="btn btn-primary btn-lg" onclick="supplyRequest.submit()" style="flex:1;">
               📨 Gửi yêu cầu cứu trợ
             </button>
-            <a href="tel:0912127142" class="btn btn-danger btn-lg">
-              📞 Hotline
-            </a>
+            <a href="tel:0912127142" class="btn btn-danger btn-lg">📞 Hotline</a>
           </div>
-        </div>
 
-        <!-- RIGHT: Request List -->
-        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
-
+          <!-- Request List -->
+          ${this.requests.length > 0 ? `
           <div class="card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-3);">
               <h3 style="font-size:var(--text-sm); font-weight:var(--font-bold);">📊 Yêu cầu đã gửi</h3>
-              <span class="badge badge-info">${this.requests.length} yêu cầu</span>
+              <span class="badge badge-info">${this.requests.length}</span>
             </div>
+            <div style="max-height:300px; overflow-y:auto;">${this.renderRequests(isAdmin)}</div>
+          </div>` : ''}
+        </div>
 
-            <div id="req-list" style="max-height:60vh; overflow-y:auto;">
-              ${this.renderRequests(isAdmin)}
+        <!-- RIGHT: Public Inventory Dashboard -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+
+          <!-- Inventory Header -->
+          <div class="card" style="border-left:3px solid #f59e0b; background:rgba(245,158,11,0.04);">
+            <div style="display:flex; align-items:center; gap:var(--space-3);">
+              <span style="font-size:28px;">📊</span>
+              <div>
+                <h2 style="font-size:var(--text-lg); font-weight:var(--font-bold);">Tình trạng kho cứu trợ</h2>
+                <p style="font-size:var(--text-xs); color:var(--text-muted);">Xem những gì đang thiếu để quyên góp đúng nhu cầu</p>
+              </div>
             </div>
           </div>
 
-          <!-- Stats -->
-          <div class="card" style="background:rgba(59,130,246,0.05);">
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-3); text-align:center;">
-              <div>
-                <div style="font-size:var(--text-xl); font-weight:var(--font-bold); color:#93c5fd;">${this.requests.filter(r => r.status === 'pending').length}</div>
-                <div style="font-size:10px; color:var(--text-muted);">Đang chờ</div>
-              </div>
-              <div>
-                <div style="font-size:var(--text-xl); font-weight:var(--font-bold); color:#fbbf24;">${this.requests.filter(r => r.status === 'processing').length}</div>
-                <div style="font-size:10px; color:var(--text-muted);">Đang xử lý</div>
-              </div>
-              <div>
-                <div style="font-size:var(--text-xl); font-weight:var(--font-bold); color:#6ee7b7;">${this.requests.filter(r => r.status === 'done').length}</div>
-                <div style="font-size:10px; color:var(--text-muted);">Đã giao</div>
-              </div>
-            </div>
+          <!-- Urgent needs banner -->
+          ${this.renderUrgentNeeds(inventory)}
+
+          <!-- Category inventory cards -->
+          ${this.renderPublicInventory(inventory)}
+
+          <!-- Donate CTA -->
+          <div class="card" style="background:linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.08)); text-align:center; border:1px solid rgba(239,68,68,0.2);">
+            <div style="font-size:24px; margin-bottom:8px;">❤️</div>
+            <div style="font-size:var(--text-sm); font-weight:var(--font-bold); margin-bottom:4px;">Muốn quyên góp?</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Nhấn nút ❤️ ở góc phải để chuyển khoản qua VietQR</div>
+            <button onclick="if(typeof donatePanel!=='undefined') donatePanel.toggle()" class="btn btn-primary" style="padding:8px 20px;">
+              ❤️ Ủng hộ ngay
+            </button>
           </div>
         </div>
       </div>
@@ -271,5 +276,104 @@ class SupplyRequest {
       showToast(`✅ Yêu cầu ${req.name} → ${statusLabels[status]}`, 'success');
       this.render();
     }
+  }
+
+  // ── Public inventory rendering ──
+
+  renderUrgentNeeds(inventory) {
+    const urgent = inventory.filter(s => (s.used / s.total) > 0.75).sort((a, b) => (b.used / b.total) - (a.used / a.total));
+    if (urgent.length === 0) return '';
+
+    return `
+      <div class="card" style="border:1px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.04);">
+        <div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-3);">
+          <span class="animate-pulse" style="font-size:16px;">🚨</span>
+          <h3 style="font-size:var(--text-sm); font-weight:var(--font-bold); color:#fca5a5;">
+            CẦN QUYÊN GÓP GẤP (${urgent.length} mặt hàng sắp hết)
+          </h3>
+        </div>
+        <div style="display:grid; gap:6px;">
+          ${urgent.slice(0, 6).map(s => {
+            const pct = Math.round(s.used / s.total * 100);
+            const remaining = s.total - s.used;
+            const isCritical = pct > 90;
+            return `
+              <div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:rgba(239,68,68,${isCritical ? '0.08' : '0.03'});
+                border-radius:6px; border-left:3px solid ${isCritical ? '#ef4444' : '#f59e0b'};">
+                <span style="font-size:16px;">${s.icon}</span>
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; font-weight:var(--font-bold);">${s.name}</span>
+                    <span style="font-size:10px; font-weight:bold; color:${isCritical ? '#ef4444' : '#f59e0b'};">${isCritical ? '⚠ CỰC KỲ THIẾU' : '⚠ SẮP HẾT'}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+                    <div style="flex:1; height:4px; background:rgba(255,255,255,0.05); border-radius:2px;">
+                      <div style="width:${pct}%; height:100%; background:${isCritical ? '#ef4444' : '#f59e0b'}; border-radius:2px;"></div>
+                    </div>
+                    <span style="font-size:10px; color:var(--text-muted); white-space:nowrap;">Còn ${remaining} ${s.unit}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  renderPublicInventory(inventory) {
+    const catGroups = [
+      { id: 'food', label: '🍚 Lương thực', color: '#f59e0b' },
+      { id: 'medical', label: '💊 Y tế', color: '#ef4444' },
+      { id: 'living', label: '🏠 Sinh hoạt', color: '#3b82f6' },
+      { id: 'safety', label: '🦺 An toàn', color: '#10b981' }
+    ];
+
+    return catGroups.map(cat => {
+      const items = inventory.filter(s => s.category === cat.id);
+      if (items.length === 0) return '';
+
+      const totalInCat = items.reduce((s, i) => s + i.total, 0);
+      const usedInCat = items.reduce((s, i) => s + i.used, 0);
+      const catPct = Math.round(usedInCat / totalInCat * 100);
+
+      return `
+        <div class="card" style="border-top:2px solid ${cat.color};">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-3);">
+            <h3 style="font-size:var(--text-sm); font-weight:var(--font-bold);">${cat.label}</h3>
+            <span style="font-size:10px; padding:2px 8px; border-radius:4px; font-weight:bold;
+              background:${catPct > 80 ? 'rgba(239,68,68,0.1)' : catPct > 50 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)'};
+              color:${catPct > 80 ? '#ef4444' : catPct > 50 ? '#f59e0b' : '#10b981'};">
+              ${catPct > 80 ? '🔴 Thiếu' : catPct > 50 ? '🟡 Vừa' : '🟢 Đủ'} · đã dùng ${catPct}%
+            </span>
+          </div>
+
+          <div style="display:grid; gap:4px;">
+            ${items.map(s => {
+              const pct = Math.round(s.used / s.total * 100);
+              const remaining = s.total - s.used;
+              const status = pct > 90 ? 'critical' : pct > 75 ? 'low' : pct > 40 ? 'ok' : 'good';
+              const barColor = status === 'critical' ? '#ef4444' : status === 'low' ? '#f59e0b' : status === 'ok' ? '#3b82f6' : '#10b981';
+              const statusLabel = status === 'critical' ? '🔴 Cần gấp' : status === 'low' ? '🟠 Sắp hết' : status === 'ok' ? '🔵 Ổn' : '🟢 Dư';
+
+              return `
+                <div style="display:grid; grid-template-columns:20px 1fr 100px 80px; align-items:center; gap:6px;
+                  padding:5px 8px; border-radius:4px; background:rgba(255,255,255,0.02);">
+                  <span style="font-size:14px;">${s.icon}</span>
+                  <span style="font-size:11px; font-weight:var(--font-medium);">${s.name}</span>
+                  <div style="height:5px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+                    <div style="width:${100 - pct}%; height:100%; background:${barColor}; border-radius:3px; transition:width 0.3s;"></div>
+                  </div>
+                  <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px;">
+                    <span style="font-size:10px; color:var(--text-muted); white-space:nowrap;">${remaining.toLocaleString()}</span>
+                    <span style="font-size:8px; color:${barColor};">${statusLabel.split(' ')[0]}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 }

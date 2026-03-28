@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Authentication Module
+   FloodLink – Authentication Module
    Role-based: Admin (full) vs User (restricted)
    ============================================ */
 

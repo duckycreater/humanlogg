@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Donate Panel (VietQR)
+   FloodLink – Donate Panel (VietQR)
    ============================================ */
 
 class DonatePanel {

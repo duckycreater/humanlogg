@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Emergency Mode
+   FloodLink – Emergency Mode
    Khẩn cấp · Thuốc men · Sức khỏe · Hotline
    ============================================ */
 

@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Elder Mode (Voice-only)
+   FloodLink – Elder Mode (Voice-only)
    ============================================ */
 
 class ElderMode {

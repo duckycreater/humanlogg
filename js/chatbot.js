@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Groq AI Emergency Chatbot
+   FloodLink – Groq AI Emergency Chatbot
    ============================================ */
 
 class Chatbot {

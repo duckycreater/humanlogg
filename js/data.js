@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Simulated Data
+   FloodLink – Simulated Data
    ============================================ */
 
 const FloodData = {

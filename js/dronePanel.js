@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Drone Dashboard
+   FloodLink – Drone Dashboard
    ============================================ */
 
 class DronePanel {

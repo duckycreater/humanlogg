@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Firebase / Firestore Module
+   FloodLink – Firebase / Firestore Module
    Optimized: batch writes, offline persistence,
    debounced sync, error retry
    ============================================ */

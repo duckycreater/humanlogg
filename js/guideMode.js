@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Hướng dẫn sử dụng (HDSD)
+   FloodLink – Hướng dẫn sử dụng (HDSD)
    ============================================ */
 
 class GuideMode {
@@ -20,7 +20,7 @@ class GuideMode {
         <div style="text-align:center; margin-bottom:var(--space-6);">
           <div style="font-size:36px; margin-bottom:var(--space-3);">📖</div>
           <h2 style="font-size:var(--text-xl); font-weight:var(--font-bold); background:linear-gradient(135deg,#3b82f6,#06d6a0); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
-            Hướng dẫn sử dụng FloodLink 2.0
+            Hướng dẫn sử dụng FloodLink
           </h2>
           <p style="font-size:var(--text-sm); color:var(--text-muted); margin-top:var(--space-2);">
             Hệ thống điều phối cứu trợ lũ lụt thông minh – Hội Chữ thập đỏ Việt Nam
@@ -127,12 +127,12 @@ class GuideMode {
             <p>📞 Hotline cứu trợ: <strong style="color:#fca5a5; font-size:16px;">0912 127 142</strong> (24/7)</p>
             <p>🏥 Cấp cứu: <strong>115</strong> · Công an: <strong>113</strong> · PCCC: <strong>114</strong></p>
             <p>💻 Phát triển bởi: Đội thi FloodLink – Hội Chữ thập đỏ Việt Nam</p>
-            <p>🔧 Phiên bản: FloodLink 2.0 · Cập nhật: 28/03/2026</p>
+            <p>🔧 Phiên bản: FloodLink · Cập nhật: 28/03/2026</p>
           </div>
         `)}
 
         <div style="text-align:center; padding:var(--space-6); color:var(--text-muted); font-size:var(--text-xs);">
-          ❤️ FloodLink 2.0 – Mỗi giây đều quý giá trong cứu trợ
+          ❤️ FloodLink – Mỗi giây đều quý giá trong cứu trợ
         </div>
       </div>
     `;

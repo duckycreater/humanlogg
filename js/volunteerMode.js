@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Volunteer Mode
+   FloodLink – Volunteer Mode
    ============================================ */
 
 class VolunteerMode {

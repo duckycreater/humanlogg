@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Command Center Module
+   FloodLink – Command Center Module
    ============================================ */
 
 class CommandCenter {

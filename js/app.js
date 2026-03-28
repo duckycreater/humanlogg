@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Main Application Controller
+   FloodLink – Main Application Controller
    ============================================ */
 
 // ── Module instances ──

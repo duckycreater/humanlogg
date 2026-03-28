@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Leaflet Map Renderer
+   FloodLink – Leaflet Map Renderer
    Real OpenStreetMap + Heatmap + 20 Drones
    ============================================ */
 
@@ -69,7 +69,7 @@ class FloodMap {
     L.control.layers(baseLayers, null, { position: 'topright', collapsed: true }).addTo(this.map);
 
     // Attribution
-    L.control.attribution({ prefix: 'FloodLink 2.0 | Leaflet | © OpenStreetMap' }).addTo(this.map);
+    L.control.attribution({ prefix: 'FloodLink | Leaflet | © OpenStreetMap' }).addTo(this.map);
 
     // ── Build all layers ──
     this.buildFloodZones();

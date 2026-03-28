@@ -1,5 +1,5 @@
 /* ============================================
-   FloodLink 2.0 – Supplies Management Mode
+   FloodLink – Supplies Management Mode
    ============================================ */
 
 class SuppliesMode {
