@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FloodLink 2.0 – Hệ thống điều phối cứu trợ lũ lụt thông minh, 100% offline, hỗ trợ Elder Mode voice-only và LoRa Mesh.">
+  <title>FloodLink 2.0 – Hệ thống Điều phối Cứu trợ Lũ lụt</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/elder.css">
+  <link rel="stylesheet" href="css/chatbot.css">
+  <link rel="stylesheet" href="css/emergency.css">
+
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <!-- Leaflet.Draw -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <style>
+    /* Leaflet dark theme overrides */
+    .leaflet-popup-content-wrapper { background: rgba(17,24,39,0.95); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.15); }
+    .leaflet-popup-tip { background: rgba(17,24,39,0.95); }
+    .leaflet-popup-close-button { color: #94a3b8 !important; }
+    .leaflet-control-layers { background: rgba(17,24,39,0.9) !important; color: #e2e8f0 !important; border: 1px solid rgba(148,163,184,0.15) !important; }
+    .leaflet-control-layers label { color: #e2e8f0; }
+    .leaflet-control-zoom a { background: rgba(17,24,39,0.9) !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,0.15) !important; }
+    .leaflet-control-zoom a:hover { background: rgba(30,41,59,0.95) !important; }
+    .flood-tooltip { background: rgba(239,68,68,0.15) !important; color: #fecaca !important; border: 1px solid rgba(239,68,68,0.3) !important; font-size: 11px !important; }
+    .station-tooltip { background: rgba(6,214,160,0.15) !important; color: #6ee7b7 !important; border: 1px solid rgba(6,214,160,0.3) !important; }
+    .leaflet-container { background: #0d1117 !important; }
+    #command-map { height: 100%; width: 100%; border-radius: var(--radius-lg); }
+    /* Draw toolbar dark theme */
+    .leaflet-draw-toolbar a { background-color: rgba(17,24,39,0.9) !important; border-color: rgba(148,163,184,0.15) !important; color: #e2e8f0 !important; }
+    .leaflet-draw-toolbar a:hover { background-color: rgba(30,41,59,0.95) !important; }
+    .leaflet-draw-actions li a { background: rgba(17,24,39,0.95); color: #e2e8f0; border-color: rgba(148,163,184,0.15); }
+    .leaflet-draw-tooltip { background: rgba(17,24,39,0.9); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.15); }
+    /* Auth modal */
+    .auth-modal { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; }
+    .auth-modal.open { display:flex; }
+    .auth-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); }
+    .auth-modal-content { position:relative; width:380px; max-width:90vw; padding:28px;
+      background:rgba(15,23,42,0.95); border:1px solid rgba(148,163,184,0.12);
+      border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+  </style>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
+</head>
+<body>
+  <div id="app">
+    <!-- ═══════════════════════ HEADER ═══════════════════════ -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <defs>
+              <linearGradient id="logo-grad" x1="0" y1="0" x2="36" y2="36">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#06d6a0"/>
+              </linearGradient>
+            </defs>
+            <rect width="36" height="36" rx="10" fill="url(#logo-grad)" opacity="0.15"/>
+            <path d="M8 22c2-4 4-6 6-6s4 4 6 4 4-6 6-6 3 2 4 4" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M8 16c2-4 4-6 6-6s4 4 6 4 4-6 6-6 3 2 4 4" stroke="url(#logo-grad)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+            <circle cx="28" cy="10" r="3" fill="#06d6a0"/>
+          </svg>
+          <div>
+            <div class="header-title text-gradient">FloodLink 2.0</div>
+            <div class="header-subtitle">Thuyền Trạm #01 – Hà Nội</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <nav class="mode-nav">
+          <div class="tabs">
+            <button class="tab active" data-mode="command" id="tab-command">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+              </svg>
+              Command Center
+            </button>
+            <button class="tab" data-mode="volunteer" id="tab-volunteer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              Tình nguyện viên
+            </button>
+            <button class="tab" data-mode="drone" id="tab-drone">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              Drone
+            </button>
+            <button class="tab" data-mode="elder" id="tab-elder">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+              </svg>
+              Elder Mode
+            </button>
+            <button class="tab" data-mode="supplies" id="tab-supplies">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
+              Vật phẩm
+            </button>
+            <button class="tab" data-mode="emergency" id="tab-emergency">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Khẩn cấp
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <div class="header-status">
+          <span class="status-dot status-dot-online"></span>
+          <span id="connection-status" style="font-size:var(--text-xs); color:var(--text-secondary);">● OFFLINE</span>
+        </div>
+        <div id="auth-status" style="display:flex; align-items:center; gap:6px;"></div>
+        <div style="display:flex; align-items:center; gap:var(--space-2);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span class="header-time" id="header-time">10:30:00</span>
+        </div>
+        <div style="font-size:var(--text-xs); color:var(--text-muted); font-family:var(--font-mono);">28/03/2026</div>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+    <main class="main-content">
+
+      <!-- ── COMMAND CENTER MODE ── -->
+      <div id="mode-command" class="mode-panel">
+        <div class="command-layout">
+          <!-- Map Area -->
+          <div class="command-map-area">
+            <div id="command-map"></div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+              <button class="btn btn-ghost btn-icon" onclick="commandCenter.toggleMapThermal()" title="Bản đồ nhiệt">
+                🌡️
+              </button>
+              <button class="btn btn-ghost btn-icon" onclick="commandCenter.toggleDronePaths()" title="Đường bay drone">
+                ✈️
+              </button>
+              <button class="btn btn-ghost btn-icon" onclick="if(commandCenter.map) commandCenter.map.toggleFloodZones()" title="Vùng ngập">
+                🌊
+              </button>
+              <button class="btn btn-ghost btn-icon" onclick="if(floodMap) floodMap.toggleMarkersPanel()" title="Danh sách đánh dấu">
+                📌
+              </button>
+              <button class="btn btn-ghost btn-icon" onclick="if(floodMap){const s=floodMap.toggle3D();showToast(s?'🏛 3D Bật':'3D Tắt','info');}" title="3D tilt">
+                🏛️
+              </button>
+            </div>
+
+            <!-- Drone Flight Control Bar -->
+            <div id="drone-control-bar" style="position:absolute; bottom:12px; left:12px; z-index:800; display:flex; gap:6px; flex-wrap:wrap;">
+              <select id="drone-select" style="padding:6px 10px; background:rgba(17,24,39,0.9); border:1px solid rgba(148,163,184,0.15); border-radius:6px; color:#e2e8f0; font-size:11px; font-family:inherit;">
+                <option value="">-- Chọn Drone --</option>
+              </select>
+              <button class="btn btn-ghost" style="font-size:10px; padding:4px 8px;" onclick="if(floodMap && document.getElementById('drone-select').value) floodMap.selectDrone(document.getElementById('drone-select').value)">
+                📍 Đặt điểm đến
+              </button>
+              <button class="btn btn-ghost" style="font-size:10px; padding:4px 8px;" onclick="if(floodMap) floodMap.finishWaypoints()">
+                ✅ Xác nhận bay
+              </button>
+              <button class="btn btn-ghost" style="font-size:10px; padding:4px 8px;" onclick="if(floodMap) floodMap.clearWaypoints()">
+                🗑 Xóa đường bay
+              </button>
+              <button class="btn btn-ghost" style="font-size:10px; padding:4px 8px;" onclick="if(floodMap && document.getElementById('drone-select').value) floodMap.toggleDroneAutoFly(document.getElementById('drone-select').value)">
+                ⏯ Bay/Dừng
+              </button>
+            </div>
+
+            <!-- Map Legend -->
+            <div class="map-legend">
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--priority-critical);"></div>
+                <span>Ưu tiên rất cao (≥80)</span>
+              </div>
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--priority-high);"></div>
+                <span>Ưu tiên cao (60-79)</span>
+              </div>
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--priority-medium);"></div>
+                <span>Trung bình (40-59)</span>
+              </div>
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--priority-low);"></div>
+                <span>Thấp (&lt;40)</span>
+              </div>
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--color-accent);"></div>
+                <span>Thuyền Trạm</span>
+              </div>
+              <div class="map-legend-item">
+                <div class="map-legend-dot" style="background:var(--color-primary);"></div>
+                <span>Drone</span>
+              </div>
+            </div>
+
+            <!-- LoRa Panel -->
+            <div id="lora-panel" class="lora-panel"></div>
+
+            <!-- Markers Panel -->
+            <div id="markers-panel" class="markers-panel">
+              <div class="markers-panel-header">
+                <span>📌 Đánh dấu (${0})</span>
+                <button onclick="if(floodMap) floodMap.toggleMarkersPanel()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;">✕</button>
+              </div>
+              <div id="markers-panel-list" class="markers-panel-list">
+                <div style="padding:var(--space-4); text-align:center; font-size:var(--text-xs); color:var(--text-muted);">Chưa có điểm đánh dấu.<br>Click chuột phải trên bản đồ để thêm.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="command-sidebar">
+            <!-- Stats Bar -->
+            <div id="command-stats" class="stats-bar"></div>
+
+            <!-- Sidebar Tabs -->
+            <div class="sidebar-tabs">
+              <div class="sidebar-tab active" data-tab="priority">📊 Ưu tiên</div>
+              <div class="sidebar-tab" data-tab="drones">✈️ Drone</div>
+              <div class="sidebar-tab" data-tab="inventory">📦 Kho</div>
+              <div class="sidebar-tab" data-tab="messages">📡 LoRa Log</div>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div id="sidebar-content" class="sidebar-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VOLUNTEER MODE ── -->
+      <div id="mode-volunteer" class="mode-panel">
+        <div id="volunteer-panel"></div>
+      </div>
+
+      <!-- ── DRONE MODE ── -->
+      <div id="mode-drone" class="mode-panel">
+        <div id="drone-panel"></div>
+      </div>
+
+      <!-- ── SUPPLIES MODE ── -->
+      <div id="mode-supplies" class="mode-panel">
+        <div id="supplies-panel"></div>
+      </div>
+
+      <!-- ── EMERGENCY MODE ── -->
+      <div id="mode-emergency" class="mode-panel">
+        <div id="emergency-panel"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════ ELDER MODE (Full-screen overlay) ═══════════════════════ -->
+  <div id="elder-mode" class="elder-mode">
+    <button class="elder-exit" onclick="elderMode.deactivate()" title="Thoát Elder Mode (Esc)">✕</button>
+
+    <div id="elder-voice-circle" class="elder-voice-circle">
+      <div class="elder-mic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <path d="M12 19v4M8 23h8"/>
+        </svg>
+      </div>
+    </div>
+
+    <div id="elder-voice-wave" class="elder-voice-wave">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+
+    <div id="elder-status" class="elder-status">
+      Đang khởi động FloodLink...
+    </div>
+
+    <div class="elder-commands">
+      <button class="elder-cmd-btn" onclick="elderMode.executeCommand('sos')">
+        <span class="elder-cmd-icon">🆘</span>
+        <span class="elder-cmd-label">Cần cứu trợ</span>
+        <span class="elder-cmd-key">Phím 1</span>
+      </button>
+      <button class="elder-cmd-btn" onclick="elderMode.executeCommand('confirm')">
+        <span class="elder-cmd-icon">✅</span>
+        <span class="elder-cmd-label">Nhận hàng</span>
+        <span class="elder-cmd-key">Phím 2</span>
+      </button>
+      <button class="elder-cmd-btn" onclick="elderMode.executeCommand('warm')">
+        <span class="elder-cmd-icon">🧣</span>
+        <span class="elder-cmd-label">Giao sưởi ấm</span>
+        <span class="elder-cmd-key">Phím 3</span>
+      </button>
+    </div>
+
+    <div class="elder-hint">
+      Nói to lệnh hoặc nhấn nút • Nhấn Esc để thoát • Alt+4 để vào lại
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
+  <script src="js/data.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/commandCenter.js"></script>
+  <script src="js/elderMode.js"></script>
+  <script src="js/volunteerMode.js"></script>
+  <script src="js/dronePanel.js"></script>
+  <script src="js/loraSimulator.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/suppliesMode.js"></script>
+  <script src="js/emergencyMode.js"></script>
+  <script src="js/firestoreSync.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/donate.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

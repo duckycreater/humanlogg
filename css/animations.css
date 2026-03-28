@@ -1,0 +1,179 @@
+/* ============================================
+   FloodLink 2.0 – Animations
+   ============================================ */
+
+/* ── Pulse ── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Glow ── */
+@keyframes glow-blue {
+  0%, 100% { box-shadow: 0 0 10px var(--color-primary-glow); }
+  50% { box-shadow: 0 0 25px var(--color-primary-glow), 0 0 50px var(--color-primary-glow); }
+}
+
+@keyframes glow-red {
+  0%, 100% { box-shadow: 0 0 10px var(--color-danger-glow); }
+  50% { box-shadow: 0 0 25px var(--color-danger-glow), 0 0 40px var(--color-danger-glow); }
+}
+
+@keyframes glow-green {
+  0%, 100% { box-shadow: 0 0 10px var(--color-success-glow); }
+  50% { box-shadow: 0 0 25px var(--color-success-glow), 0 0 40px var(--color-success-glow); }
+}
+
+/* ── Slide ── */
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-down {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-left {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-right {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Fade ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Ripple ── */
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* ── Drone fly ── */
+@keyframes drone-hover {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(1deg); }
+  75% { transform: translateY(2px) rotate(-1deg); }
+}
+
+@keyframes drone-blink {
+  0%, 40%, 100% { opacity: 1; }
+  50%, 90% { opacity: 0.3; }
+}
+
+/* ── Status blink ── */
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Rotate ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Wave (voice) ── */
+@keyframes voice-wave {
+  0%, 100% { height: 8px; }
+  50% { height: 32px; }
+}
+
+@keyframes voice-wave-2 {
+  0%, 100% { height: 12px; }
+  50% { height: 48px; }
+}
+
+@keyframes voice-wave-3 {
+  0%, 100% { height: 6px; }
+  50% { height: 24px; }
+}
+
+/* ── Elder Mode ── */
+@keyframes elder-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 214, 160, 0.5); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 30px rgba(6, 214, 160, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(6, 214, 160, 0); }
+}
+
+@keyframes elder-listen {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+/* ── Float ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ── Progress bar ── */
+@keyframes progress-stripe {
+  0% { background-position: 40px 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ── Count up number ── */
+@keyframes count-glow {
+  0% { text-shadow: 0 0 5px currentColor; }
+  50% { text-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
+  100% { text-shadow: 0 0 5px currentColor; }
+}
+
+/* ── Utility animation classes ── */
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-pulse-scale { animation: pulse-scale 2s infinite; }
+.animate-glow-blue { animation: glow-blue 2s infinite; }
+.animate-glow-red { animation: glow-red 1.5s infinite; }
+.animate-glow-green { animation: glow-green 2s infinite; }
+.animate-slide-up { animation: slide-up 0.4s ease forwards; }
+.animate-slide-left { animation: slide-left 0.4s ease forwards; }
+.animate-fade-in { animation: fade-in 0.3s ease forwards; }
+.animate-fade-up { animation: fade-up 0.4s ease forwards; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+.animate-drone { animation: drone-hover 3s ease-in-out infinite; }
+.animate-status-blink { animation: status-blink 1.5s infinite; }
+
+/* Staggered children */
+.stagger-children > * {
+  animation: fade-up 0.4s ease forwards;
+  opacity: 0;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
