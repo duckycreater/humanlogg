@@ -1,41 +1,53 @@
 /* ============================================
    FloodLink – Emergency Mode
-   Khẩn cấp · Thuốc men · Sức khỏe · Hotline
+   Khẩn cấp · SOS · Thuốc men · Sức khỏe · Hotline
    ============================================ */
 
 class EmergencyMode {
   constructor() {
     this.medCategory = 'all';
     this.healthReports = [];
+    this.sosHistory = [];
     this.expandedGuide = null;
-    this.selectedSeverity = null; // AI will determine this
+    this.selectedSeverity = null;
+
+    // SOS state
+    this.sosCountdown = null;
+    this.sosCountdownValue = 5;
+    this.sosModalEl = null;
+    this.currentLocation = null;
+    this.isLocating = false;
+    this.audioCtx = null;
   }
 
   init() {
     this.render();
   }
 
+  // ════════════════════════════════════════
+  // Emergency Contacts
+  // ════════════════════════════════════════
+  getEmergencyContacts() {
+    return [
+      { id: 'floodlink', name: 'Cứu trợ lũ FloodLink', number: '0912127142', display: '0912 127 142', icon: '🌊', iconClass: 'floodlink', note: '24/7 · Hội CTĐ' },
+      { id: 'medical', name: 'Cấp cứu Y tế', number: '115', display: '115', icon: '🏥', iconClass: 'medical', note: 'Xe cứu thương' },
+      { id: 'police', name: 'Công an', number: '113', display: '113', icon: '👮', iconClass: 'police', note: 'An ninh trật tự' },
+      { id: 'fire', name: 'Cứu hỏa & CNCH', number: '114', display: '114', icon: '🚒', iconClass: 'fire', note: 'PCCC · Cứu nạn' },
+    ];
+  }
+
   getMedicines() {
     return [
-      // Hạ sốt & Giảm đau
       { id: 'M01', name: 'Paracetamol 500mg', category: 'fever', icon: '💊', usage: 'Hạ sốt, giảm đau đầu, đau cơ', dosage: '1-2 viên/lần, cách 4-6 giờ', warning: 'Không quá 8 viên/ngày. Cẩn thận bệnh gan.', stock: 500, unit: 'viên' },
       { id: 'M02', name: 'Ibuprofen 400mg', category: 'fever', icon: '💊', usage: 'Giảm đau mạnh, kháng viêm, hạ sốt', dosage: '1 viên/lần, cách 6-8 giờ', warning: 'Uống sau bữa ăn. Không dùng nếu loét dạ dày.', stock: 200, unit: 'viên' },
-
-      // Tiêu hóa
       { id: 'M03', name: 'ORS (Oresol)', category: 'digest', icon: '🥤', usage: 'Bù nước & điện giải khi tiêu chảy, nôn mửa', dosage: '1 gói pha 1L nước, uống từng ngụm nhỏ', warning: 'Pha đúng liều. Nước phải sạch.', stock: 1000, unit: 'gói' },
       { id: 'M04', name: 'Loperamide 2mg', category: 'digest', icon: '💊', usage: 'Cầm tiêu chảy cấp', dosage: '2 viên đầu, sau đó 1 viên/lần đi ngoài', warning: 'Không dùng quá 3 ngày. Không dùng khi sốt cao.', stock: 300, unit: 'viên' },
       { id: 'M05', name: 'Smecta (Diosmectite)', category: 'digest', icon: '📦', usage: 'Bao niêm mạc ruột, trị tiêu chảy', dosage: '1 gói × 3 lần/ngày, pha nước', warning: 'Uống cách thuốc khác 2 giờ.', stock: 400, unit: 'gói' },
-
-      // Kháng sinh
       { id: 'M06', name: 'Amoxicillin 500mg', category: 'antibiotic', icon: '💊', usage: 'Nhiễm trùng da, hô hấp, tiết niệu', dosage: '1 viên × 3 lần/ngày × 5-7 ngày', warning: '⚠ CHỈ dùng khi có chỉ định. Dị ứng Penicillin KHÔNG dùng.', stock: 200, unit: 'viên' },
       { id: 'M07', name: 'Metronidazole 250mg', category: 'antibiotic', icon: '💊', usage: 'Nhiễm trùng đường ruột, vết thương nhiễm khuẩn', dosage: '2 viên × 3 lần/ngày', warning: '⚠ KHÔNG uống rượu khi dùng thuốc.', stock: 150, unit: 'viên' },
-
-      // Ngoài da
       { id: 'M08', name: 'Betadine (Povidone Iodine)', category: 'skin', icon: '🧴', usage: 'Sát khuẩn vết thương, phòng nhiễm trùng', dosage: 'Bôi trực tiếp lên vết thương 2-3 lần/ngày', warning: 'Không dùng cho vết thương quá sâu.', stock: 100, unit: 'chai' },
       { id: 'M09', name: 'Mỡ kháng sinh Neosporin', category: 'skin', icon: '🧴', usage: 'Bôi vết thương nhỏ, trầy xước', dosage: 'Bôi mỏng 1-3 lần/ngày sau khi rửa sạch', warning: 'Dừng nếu bị kích ứng.', stock: 80, unit: 'tuýp' },
       { id: 'M10', name: 'Kem chống nước ăn chân', category: 'skin', icon: '🦶', usage: 'Phòng và trị nấm da, nước ăn chân do ngâm lũ', dosage: 'Bôi 2 lần/ngày, rửa sạch lau khô trước', warning: 'Giữ chân khô ráo khi có thể.', stock: 200, unit: 'tuýp' },
-
-      // Dị ứng & Khác
       { id: 'M11', name: 'Loratadine 10mg', category: 'other', icon: '💊', usage: 'Chống dị ứng, nổi mề đay, ngứa', dosage: '1 viên/ngày', warning: 'Có thể gây buồn ngủ nhẹ.', stock: 200, unit: 'viên' },
       { id: 'M12', name: 'Thuốc nhỏ mắt Natri Clorid', category: 'other', icon: '👁️', usage: 'Rửa mắt khi bị bụi bẩn, nước lũ vào mắt', dosage: 'Nhỏ 2-3 giọt/mắt khi cần', warning: 'Không dùng chung lọ.', stock: 150, unit: 'lọ' },
     ];
@@ -107,6 +119,9 @@ class EmergencyMode {
     ];
   }
 
+  // ════════════════════════════════════════
+  // RENDER MAIN PANEL
+  // ════════════════════════════════════════
   render() {
     const panel = document.getElementById('emergency-panel');
     if (!panel) return;
@@ -114,6 +129,7 @@ class EmergencyMode {
     const medicines = this.getMedicines();
     const filteredMeds = this.medCategory === 'all' ? medicines : medicines.filter(m => m.category === this.medCategory);
     const guides = this.getFirstAidGuides();
+    const contacts = this.getEmergencyContacts();
 
     const medCategories = [
       { id: 'all', label: 'Tất cả', icon: '📋' },
@@ -139,6 +155,19 @@ class EmergencyMode {
               📞 GỌI NGAY
             </a>
           </div>
+        </div>
+
+        <!-- EMERGENCY CONTACTS -->
+        <div class="emergency-contacts">
+          ${contacts.map(c => `
+            <div class="emergency-contact-card">
+              <div class="contact-icon ${c.iconClass}">${c.icon}</div>
+              <div class="contact-name">${c.name}</div>
+              <div class="contact-number">${c.display}</div>
+              <div style="font-size:10px; color:var(--text-muted);">${c.note}</div>
+              <a href="tel:${c.number}" class="contact-call-btn">📞 Gọi</a>
+            </div>
+          `).join('')}
         </div>
 
         <!-- QUICK ACTIONS -->
@@ -243,6 +272,20 @@ class EmergencyMode {
               ${this.renderHealthReports()}
             </div>
           </div>
+
+          <!-- SOS HISTORY -->
+          <div class="card" id="sos-history-section">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-3);">
+              <div style="display:flex; align-items:center; gap:var(--space-2);">
+                <span style="font-size:16px;">🆘</span>
+                <span style="font-size:var(--text-sm); font-weight:var(--font-bold);">Lịch sử SOS</span>
+              </div>
+              <span class="badge badge-danger">${this.sosHistory.length} tín hiệu</span>
+            </div>
+            <div id="sos-history-list">
+              ${this.renderSOSHistory()}
+            </div>
+          </div>
         </div>
 
         <!-- RIGHT COLUMN -->
@@ -331,6 +374,9 @@ class EmergencyMode {
     `;
   }
 
+  // ════════════════════════════════════════
+  // HEALTH REPORTS
+  // ════════════════════════════════════════
   renderHealthReports() {
     if (this.healthReports.length === 0) {
       return '<div style="text-align:center; padding:var(--space-4); color:var(--text-muted); font-size:var(--text-xs);">Chưa có báo cáo sức khỏe.<br>Hãy điền form bên trên – AI sẽ tự động phân loại.</div>';
@@ -364,6 +410,346 @@ class EmergencyMode {
     }).join('');
   }
 
+  // ════════════════════════════════════════
+  // SOS HISTORY
+  // ════════════════════════════════════════
+  renderSOSHistory() {
+    if (this.sosHistory.length === 0) {
+      return '<div style="text-align:center; padding:var(--space-4); color:var(--text-muted); font-size:var(--text-xs);">Chưa có tín hiệu SOS nào.<br>Nhấn nút 🆘 SOS khi cần trợ giúp khẩn cấp.</div>';
+    }
+
+    return this.sosHistory.map(s => {
+      const badgeClass = s.status === 'called' ? 'called' : s.status === 'sms' ? 'sms' : 'cancelled';
+      const badgeLabel = s.status === 'called' ? '✅ Đã gọi' : s.status === 'sms' ? '💬 SMS' : '⚠ Đã hủy';
+      const icon = s.status === 'called' ? '📞' : s.status === 'sms' ? '💬' : '⚠️';
+      return `
+        <div class="sos-history-item">
+          <div class="sos-history-icon">${icon}</div>
+          <div class="sos-history-info">
+            <div class="sos-history-type">${s.type} <span class="sos-history-badge ${badgeClass}">${badgeLabel}</span></div>
+            <div class="sos-history-detail">${s.location || 'Không có GPS'} · ${s.number || ''}</div>
+          </div>
+          <div class="sos-history-time">${s.time}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ════════════════════════════════════════
+  // SOS FULL-SCREEN MODAL
+  // ════════════════════════════════════════
+  sendSOS() {
+    this.showSOSModal();
+  }
+
+  showSOSModal() {
+    // Remove existing modal if any
+    this.cancelSOS();
+
+    this.sosCountdownValue = 5;
+    this.currentLocation = null;
+    this.isLocating = true;
+
+    // Start getting GPS immediately
+    this.getCurrentLocation();
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'sos-modal';
+    modal.id = 'sos-modal-overlay';
+    modal.innerHTML = `
+      <div class="sos-modal-ring"></div>
+      <div class="sos-modal-ring"></div>
+      <div class="sos-modal-ring"></div>
+
+      <div class="sos-modal-icon">🆘</div>
+      <div class="sos-modal-title">TÍN HIỆU SOS KHẨN CẤP</div>
+
+      <div class="sos-countdown" id="sos-countdown-number">${this.sosCountdownValue}</div>
+      <div class="sos-countdown-label">giây nữa sẽ tự động gọi <strong>0912 127 142</strong></div>
+
+      <div class="sos-location" id="sos-location-display">
+        <span class="sos-location-icon">📍</span>
+        <span id="sos-location-text">Đang xác định vị trí GPS...</span>
+        <button onclick="emergencyMode.copyLocation()" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0 4px;" title="Copy tọa độ">📋</button>
+      </div>
+
+      <div class="sos-modal-actions">
+        <a href="tel:0912127142" class="sos-call-now-btn" onclick="emergencyMode.logSOSCall('call')">
+          📞 GỌI NGAY
+        </a>
+        <button class="sos-cancel-btn" onclick="emergencyMode.cancelSOS()">
+          ✕ HỦY BỎ
+        </button>
+        <a href="${this.buildSMSLink()}" class="sos-sms-btn" onclick="emergencyMode.logSOSCall('sms')">
+          💬 Gửi SMS SOS
+        </a>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    this.sosModalEl = modal;
+
+    // Play beep sound
+    this.playSOSBeep();
+
+    // Start countdown
+    this.startCountdown();
+
+    // Log SOS to messages
+    FloodData.messages.unshift({
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      from: 'Emergency Mode',
+      type: 'sos',
+      text: '🆘 SOS KHẨN CẤP – Đang đếm ngược gọi cứu trợ!'
+    });
+
+    showToast('🆘 SOS ĐÃ KÍCH HOẠT! Đếm ngược 5 giây...', 'danger');
+  }
+
+  startCountdown() {
+    this.sosCountdown = setInterval(() => {
+      this.sosCountdownValue--;
+
+      const countEl = document.getElementById('sos-countdown-number');
+      if (countEl) {
+        countEl.textContent = this.sosCountdownValue;
+      }
+
+      // Play beep each second
+      this.playSOSBeep();
+
+      if (this.sosCountdownValue <= 0) {
+        clearInterval(this.sosCountdown);
+        this.sosCountdown = null;
+        this.executeSOSCall();
+      }
+    }, 1000);
+  }
+
+  executeSOSCall() {
+    // Log the call
+    this.logSOSCall('call');
+
+    // Open phone dialer via hidden link (avoids blank tab on desktop)
+    this.dialNumber('0912127142');
+
+    // Close modal after a short delay
+    setTimeout(() => {
+      this.closeSOSModal();
+    }, 500);
+  }
+
+  dialNumber(number) {
+    const a = document.createElement('a');
+    a.href = `tel:${number}`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 100);
+  }
+
+  cancelSOS() {
+    if (this.sosCountdown) {
+      clearInterval(this.sosCountdown);
+      this.sosCountdown = null;
+    }
+
+    // Log cancellation if modal was open
+    if (this.sosModalEl) {
+      this.sosHistory.unshift({
+        id: `SOS-${Date.now()}`,
+        type: 'SOS Khẩn cấp',
+        status: 'cancelled',
+        number: '0912 127 142',
+        location: this.currentLocation ? `${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}` : 'Không xác định',
+        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      });
+
+      // Sync to Firestore
+      this.syncSOSToFirestore('cancelled');
+    }
+
+    this.closeSOSModal();
+    this.stopAudio();
+
+    // Re-render to update history
+    this.render();
+  }
+
+  closeSOSModal() {
+    const modal = document.getElementById('sos-modal-overlay');
+    if (modal) {
+      modal.style.animation = 'fade-in 0.3s ease reverse forwards';
+      setTimeout(() => modal.remove(), 300);
+    }
+    this.sosModalEl = null;
+  }
+
+  logSOSCall(type) {
+    const statusMap = { call: 'called', sms: 'sms' };
+    const typeMap = { call: 'Gọi điện SOS', sms: 'Tin nhắn SMS SOS' };
+
+    this.sosHistory.unshift({
+      id: `SOS-${Date.now()}`,
+      type: typeMap[type] || 'SOS Khẩn cấp',
+      status: statusMap[type] || 'called',
+      number: '0912 127 142',
+      location: this.currentLocation ? `${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}` : 'Không xác định',
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    });
+
+    // Add to message log
+    FloodData.messages.unshift({
+      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      from: 'Emergency Mode',
+      type: 'sos',
+      text: `🆘 ${typeMap[type]} – ${this.currentLocation ? `GPS: ${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}` : 'Không có GPS'}`
+    });
+
+    // Sync to Firestore
+    this.syncSOSToFirestore(statusMap[type] || 'called');
+
+    showToast(`🆘 ${typeMap[type]} – Đội cứu trợ sẽ đến nhanh nhất!`, 'danger');
+
+    // Close modal & re-render
+    if (this.sosCountdown) {
+      clearInterval(this.sosCountdown);
+      this.sosCountdown = null;
+    }
+    this.stopAudio();
+    setTimeout(() => {
+      this.closeSOSModal();
+      this.render();
+    }, 300);
+  }
+
+  syncSOSToFirestore(status) {
+    if (typeof firestoreSync !== 'undefined' && firestoreSync.connected) {
+      const lastSOS = this.sosHistory[0];
+      if (lastSOS) {
+        firestoreSync.saveDispatch({
+          reportId: lastSOS.id,
+          name: 'SOS Khẩn cấp',
+          symptom: 'SOS',
+          severity: 'high',
+          dispatch: `${lastSOS.type} (${status})`,
+          location: lastSOS.location,
+          time: lastSOS.time
+        });
+      }
+    }
+  }
+
+  // ════════════════════════════════════════
+  // GPS LOCATION
+  // ════════════════════════════════════════
+  getCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.updateLocationDisplay('⚠ GPS không khả dụng trên thiết bị này');
+      this.isLocating = false;
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.currentLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        };
+        this.isLocating = false;
+        const display = `${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)} (±${Math.round(this.currentLocation.accuracy)}m)`;
+        this.updateLocationDisplay(display);
+
+        // Also update SMS link with GPS
+        const smsLink = document.querySelector('.sos-sms-btn');
+        if (smsLink) {
+          smsLink.href = this.buildSMSLink();
+        }
+      },
+      (error) => {
+        this.isLocating = false;
+        let msg = '⚠ Không lấy được GPS';
+        if (error.code === 1) msg = '⚠ Bị từ chối quyền GPS';
+        else if (error.code === 2) msg = '⚠ GPS không khả dụng';
+        else if (error.code === 3) msg = '⚠ GPS timeout';
+        this.updateLocationDisplay(msg);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }
+
+  updateLocationDisplay(text) {
+    const el = document.getElementById('sos-location-text');
+    if (el) el.textContent = text;
+  }
+
+  copyLocation() {
+    if (!this.currentLocation) {
+      showToast('⚠ Chưa xác định được GPS', 'warning');
+      return;
+    }
+    const text = `SOS FloodLink – GPS: ${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}`;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('📋 Đã copy tọa độ GPS!', 'success');
+    }).catch(() => {
+      // Fallback
+      showToast(`📍 GPS: ${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}`, 'info');
+    });
+  }
+
+  buildSMSLink() {
+    const time = new Date().toLocaleString('vi-VN');
+    let body = `🆘 SOS FLOODLINK – Cần cứu trợ khẩn cấp!\nThời gian: ${time}`;
+    if (this.currentLocation) {
+      body += `\nGPS: ${this.currentLocation.lat.toFixed(6)}, ${this.currentLocation.lng.toFixed(6)}`;
+      body += `\nBản đồ: https://maps.google.com/?q=${this.currentLocation.lat.toFixed(6)},${this.currentLocation.lng.toFixed(6)}`;
+    }
+    return `sms:0912127142?body=${encodeURIComponent(body)}`;
+  }
+
+  // ════════════════════════════════════════
+  // AUDIO (Web Audio API)
+  // ════════════════════════════════════════
+  playSOSBeep() {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.value = 880; // A5 note – urgent beep
+      gain.gain.value = 0.3;
+
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.2);
+      osc.stop(this.audioCtx.currentTime + 0.2);
+    } catch (e) {
+      // Audio not supported, silently ignore
+    }
+  }
+
+  stopAudio() {
+    if (this.audioCtx) {
+      try { this.audioCtx.close(); } catch(e) {}
+      this.audioCtx = null;
+    }
+  }
+
+  // ════════════════════════════════════════
+  // UI HELPERS
+  // ════════════════════════════════════════
   setMedCategory(cat) {
     this.medCategory = cat;
     this.render();
@@ -379,21 +765,9 @@ class EmergencyMode {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  sendSOS() {
-    showToast('🆘 TÍN HIỆU SOS ĐÃ GỬI QUA LORA! Đội cứu trợ sẽ đến nhanh nhất có thể.', 'danger');
-
-    FloodData.messages.unshift({
-      time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      from: 'Emergency Mode',
-      type: 'sos',
-      text: '🆘 SOS KHẨN CẤP – Yêu cầu hỗ trợ ngay lập tức!'
-    });
-
-    if (confirm('🆘 SOS ĐÃ GỬI!\n\nBạn có muốn gọi hotline cứu trợ\n0912 127 142 ngay bây giờ?')) {
-      window.open('tel:0912127142');
-    }
-  }
-
+  // ════════════════════════════════════════
+  // AI HEALTH REPORT
+  // ════════════════════════════════════════
   async submitHealthReport() {
     const name = document.getElementById('health-name')?.value?.trim();
     const symptom = document.getElementById('health-symptom')?.value;
