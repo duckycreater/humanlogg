@@ -14,7 +14,7 @@ class GuideMode {
     if (!panel) return;
 
     panel.innerHTML = `
-      <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto 1fr; gap:var(--space-4); padding:var(--space-5); height:100%; overflow-y:auto;">
+      <div class="guide-layout">
 
         <!-- Header (full width) -->
         <div style="grid-column:1/-1; text-align:center; padding-bottom:var(--space-2);">

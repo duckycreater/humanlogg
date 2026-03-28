@@ -462,3 +462,51 @@
   gap: var(--space-4);
   margin-top: var(--space-4);
 }
+
+/* ── HDSD / Guide Layout ── */
+.guide-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .guide-layout {
+    grid-template-columns: 1fr;
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+  .guide-layout > [style*="grid-column"] {
+    grid-column: 1 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .guide-layout {
+    padding: var(--space-2);
+    gap: var(--space-2);
+  }
+}
+
+/* ── Request / Supply Layout ── */
+.request-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .request-layout {
+    grid-template-columns: 1fr;
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+}
+
