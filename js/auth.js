@@ -66,6 +66,12 @@ class AuthManager {
           🔑 Đăng nhập
         </button>
 
+        <div style="margin-top:12px; padding:10px 14px; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); border-radius:8px;">
+          <div style="font-size:10px; color:#fbbf24; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">🧪 Bản Test</div>
+          <div style="font-size:13px; color:#e2e8f0; margin-top:4px;">Mật khẩu: <strong style="font-family:monospace; color:#fbbf24; letter-spacing:0.1em; font-size:14px;">floodlink2026</strong></div>
+          <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Xem thêm tại tab <a href="#" onclick="event.preventDefault(); authManager.closeModal(); switchMode('guide');" style="color:#93c5fd; text-decoration:underline;">📖 HDSD</a></div>
+        </div>
+
         <button onclick="authManager.closeModal()" style="width:100%; margin-top:8px; padding:8px;
           background:none; border:1px solid rgba(148,163,184,0.1); border-radius:8px; color:#64748b;
           font-size:12px; cursor:pointer;">Đóng</button>
