@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Module instances ──
-let commandCenter, elderMode, volunteerMode, dronePanel, loraSimulator, chatbot, suppliesMode, emergencyMode, firestoreSync, authManager, donatePanel;
+let commandCenter, elderMode, volunteerMode, dronePanel, loraSimulator, chatbot, suppliesMode, emergencyMode, firestoreSync, authManager, donatePanel, supplyRequest, guideMode;
 let floodMap = null; // global reference for map context menu callbacks
 let currentMode = 'command';
 let toastTimeout = null;
@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   firestoreSync = new FirestoreSync();
   authManager = new AuthManager();
   donatePanel = new DonatePanel();
+  supplyRequest = new SupplyRequest();
+  guideMode = new GuideMode();
 
   // Init all
   elderMode.init();
@@ -59,6 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === '4') { e.preventDefault(); elderMode.activate(); }
       if (e.key === '5') { e.preventDefault(); switchMode('supplies'); }
       if (e.key === '6') { e.preventDefault(); switchMode('emergency'); }
+      if (e.key === '7') { e.preventDefault(); switchMode('request'); }
+      if (e.key === '8') { e.preventDefault(); switchMode('guide'); }
       if (e.key === 'c') { e.preventDefault(); chatbot.toggle(); }
     }
   });
@@ -112,6 +116,12 @@ function switchMode(mode) {
       break;
     case 'emergency':
       emergencyMode.init();
+      break;
+    case 'request':
+      supplyRequest.init();
+      break;
+    case 'guide':
+      guideMode.init();
       break;
   }
 }

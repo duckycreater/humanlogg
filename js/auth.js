@@ -1,23 +1,31 @@
 /* ============================================
    FloodLink 2.0 – Authentication Module
-   Single Admin Account – No Registration
+   Role-based: Admin (full) vs User (restricted)
    ============================================ */
 
 class AuthManager {
   constructor() {
     this.isAdmin = false;
-    // Default admin credentials
     this.ADMIN_EMAIL = 'admin@floodlink.vn';
     this.ADMIN_PASSWORD = 'floodlink2026';
+
+    // Tabs requiring admin
+    this.adminOnlyTabs = ['drone', 'supplies'];
+    // Elements hidden for non-admin
+    this.adminOnlySelectors = [
+      '.drone-control-bar',
+      '.leaflet-draw-toolbar',
+      '.map-controls'
+    ];
   }
 
   init() {
-    // Check if previously logged in (session)
     if (sessionStorage.getItem('floodlink_admin') === 'true') {
       this.isAdmin = true;
     }
     this.updateUI();
     this.buildLoginModal();
+    this.applyRestrictions();
   }
 
   buildLoginModal() {
@@ -34,7 +42,7 @@ class AuthManager {
             display:flex; align-items:center; justify-content:center; font-size:24px;">🔐</div>
           <div>
             <div style="font-size:18px; font-weight:700; color:#e2e8f0;">Đăng nhập Admin</div>
-            <div style="font-size:12px; color:#94a3b8;">Quản lý Drone & Vật phẩm yêu cầu xác thực</div>
+            <div style="font-size:12px; color:#94a3b8;">Quản lý Drone, Vật phẩm, Điều phối</div>
           </div>
         </div>
 
@@ -88,7 +96,8 @@ class AuthManager {
       sessionStorage.setItem('floodlink_admin', 'true');
       this.closeModal();
       this.updateUI();
-      showToast('🛡️ Đăng nhập Admin thành công!', 'success');
+      this.applyRestrictions();
+      showToast('🛡️ Admin – Quyền đầy đủ!', 'success');
     } else {
       const el = document.getElementById('auth-error');
       if (el) { el.style.display = 'block'; el.textContent = 'Sai mật khẩu'; }
@@ -99,8 +108,9 @@ class AuthManager {
     this.isAdmin = false;
     sessionStorage.removeItem('floodlink_admin');
     this.updateUI();
-    if (currentMode === 'drone' || currentMode === 'supplies') switchMode('command');
-    showToast('👋 Đã đăng xuất Admin', 'default');
+    this.applyRestrictions();
+    if (this.adminOnlyTabs.includes(currentMode)) switchMode('command');
+    showToast('👋 Đã đăng xuất – chế độ người dùng', 'default');
   }
 
   updateUI() {
@@ -111,14 +121,14 @@ class AuthManager {
            <button onclick="authManager.logout()" style="background:none; border:none; color:#64748b; cursor:pointer; font-size:12px; padding:2px 4px;" title="Đăng xuất">✕</button>`
         : `<button onclick="authManager.showModal()" style="padding:4px 10px; background:rgba(59,130,246,0.15);
             border:1px solid rgba(59,130,246,0.3); border-radius:6px; color:#93c5fd; font-size:11px;
-            cursor:pointer; font-family:inherit;" >🔐 Đăng nhập</button>`;
+            cursor:pointer; font-family:inherit;">🔐 Đăng nhập</button>`;
     }
     this.updateTabLocks();
   }
 
   updateTabLocks() {
-    ['tab-drone', 'tab-supplies'].forEach(id => {
-      const tab = document.getElementById(id);
+    this.adminOnlyTabs.forEach(tabMode => {
+      const tab = document.getElementById(`tab-${tabMode}`);
       if (!tab) return;
       const lock = tab.querySelector('.lock-icon');
       if (!this.isAdmin && !lock) {
@@ -129,8 +139,26 @@ class AuthManager {
     });
   }
 
+  applyRestrictions() {
+    setTimeout(() => {
+      // Hide admin-only DOM elements
+      this.adminOnlySelectors.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => {
+          el.style.display = this.isAdmin ? '' : 'none';
+        });
+      });
+
+      // Hide manage buttons in volunteer mode
+      document.querySelectorAll('.household-card .btn').forEach(el => {
+        if (el.textContent.includes('ĐANG ĐẾN') || el.textContent.includes('ĐÃ GIAO')) {
+          el.style.display = this.isAdmin ? '' : 'none';
+        }
+      });
+    }, 500);
+  }
+
   canAccess(mode) {
-    return !['drone', 'supplies'].includes(mode) || this.isAdmin;
+    return !this.adminOnlyTabs.includes(mode) || this.isAdmin;
   }
 
   requireAdmin(mode) {

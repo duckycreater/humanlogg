@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/elder.css">
   <link rel="stylesheet" href="css/chatbot.css">
   <link rel="stylesheet" href="css/emergency.css">
+  <link rel="stylesheet" href="css/responsive.css">
 
   <!-- Leaflet Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -123,6 +124,18 @@
                 <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
               Khẩn cấp
+            </button>
+            <button class="tab" data-mode="request" id="tab-request">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              Yêu cầu cứu trợ
+            </button>
+            <button class="tab" data-mode="guide" id="tab-guide">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              HDSD
             </button>
           </div>
         </nav>
@@ -274,6 +287,16 @@
         <div id="emergency-panel"></div>
       </div>
 
+      <!-- ── SUPPLY REQUEST MODE ── -->
+      <div id="mode-request" class="mode-panel">
+        <div id="request-panel"></div>
+      </div>
+
+      <!-- ── GUIDE / HDSD MODE ── -->
+      <div id="mode-guide" class="mode-panel">
+        <div id="guide-panel"></div>
+      </div>
+
     </main>
   </div>
 
@@ -340,6 +363,8 @@
   <script src="js/suppliesMode.js"></script>
   <script src="js/emergencyMode.js"></script>
   <script src="js/firestoreSync.js"></script>
+  <script src="js/supplyRequest.js"></script>
+  <script src="js/guideMode.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/donate.js"></script>
   <script src="js/app.js"></script>

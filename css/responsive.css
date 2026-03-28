@@ -1,0 +1,420 @@
+/* ============================================
+   FloodLink 2.0 – Responsive Design
+   Mobile-first breakpoints for all devices
+   ============================================ */
+
+/* ── Viewport Meta (already in HTML) ── */
+
+/* ══════════════════════════════════════
+   TABLET (≤1024px)
+   ══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  /* Header: shrink padding */
+  .app-header {
+    padding: var(--space-2) var(--space-3);
+    min-height: 52px;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .header-logo svg { width: 28px; height: 28px; }
+  .header-title { font-size: var(--text-base); }
+  .header-subtitle { font-size: 10px; }
+
+  /* Nav tabs: scroll horizontal */
+  .mode-nav { max-width: 100%; overflow-x: auto; }
+  .mode-nav .tabs { gap: 2px; }
+  .mode-nav .tab {
+    font-size: 11px;
+    padding: var(--space-2) var(--space-3);
+    white-space: nowrap;
+  }
+  .mode-nav .tab svg { display: none; }
+
+  /* Command Center: sidebar narrower */
+  .command-layout {
+    grid-template-columns: 1fr 300px;
+  }
+
+  /* Volunteer layout */
+  .volunteer-layout {
+    grid-template-columns: 320px 1fr;
+  }
+
+  /* Stats bar 2-col */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  /* Drone layout */
+  .drone-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .drone-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .drone-layout {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  /* Emergency layout */
+  .emergency-layout {
+    gap: var(--space-3) !important;
+  }
+
+  /* Donate panel */
+  #donate-panel {
+    width: 320px !important;
+    right: 16px !important;
+    bottom: 130px !important;
+  }
+
+  /* Chatbot panel */
+  .chat-panel {
+    width: 340px !important;
+    right: 12px !important;
+  }
+}
+
+/* ══════════════════════════════════════
+   SMALL TABLET / LARGE PHONE (≤768px)
+   ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Allow scrolling */
+  body { overflow-y: auto; }
+  #app { height: auto; min-height: 100vh; overflow: visible; }
+
+  /* Header: stack vertically */
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .header-right {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    font-size: 11px;
+  }
+
+  /* Nav: horizontal scroll */
+  .header-center { width: 100%; }
+  .mode-nav { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mode-nav .tabs {
+    width: max-content;
+    min-width: 100%;
+    gap: 2px;
+    padding: var(--space-1);
+  }
+  .mode-nav .tab {
+    font-size: 11px;
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
+
+  /* Main content: allow scroll */
+  .main-content { overflow-y: auto; height: auto; min-height: calc(100vh - 120px); }
+
+  /* Command: stack map + sidebar */
+  .command-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 50vh auto;
+    height: auto;
+  }
+
+  .command-sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border-glass);
+    max-height: none;
+  }
+
+  #command-map { min-height: 300px; }
+
+  /* Stats bar: 2 cols */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+  .stats-bar .card-sm { padding: var(--space-2); }
+
+  /* Volunteer: stack */
+  .volunteer-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+  }
+  .volunteer-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-glass);
+    max-height: 50vh;
+  }
+  .volunteer-main { padding: var(--space-4); }
+
+  /* Drone: single column */
+  .drone-layout {
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+  .drone-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .drone-grid { grid-template-columns: 1fr; }
+  .drone-detail-stats { grid-template-columns: repeat(2, 1fr); }
+
+  /* Emergency: stack columns */
+  .emergency-layout {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .emergency-header-bar { order: -1; }
+
+  .emergency-quick {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-2) !important;
+  }
+
+  /* LoRa panel: full width bottom */
+  .lora-panel {
+    position: relative;
+    width: 100%;
+    bottom: auto;
+    right: auto;
+    margin-top: var(--space-3);
+  }
+
+  /* Chatbot */
+  .chat-panel {
+    width: calc(100vw - 24px) !important;
+    right: 12px !important;
+    left: 12px !important;
+    bottom: 64px !important;
+    max-height: 70vh !important;
+  }
+  .chat-fab {
+    width: 44px !important;
+    height: 44px !important;
+    bottom: 12px !important;
+    right: 12px !important;
+  }
+
+  /* Donate panel */
+  #donate-panel {
+    width: calc(100vw - 24px) !important;
+    right: 12px !important;
+    left: 12px !important;
+    bottom: 64px !important;
+    max-height: 70vh !important;
+  }
+  #donate-fab {
+    bottom: 64px !important;
+    right: 12px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Map controls: smaller */
+  .map-controls {
+    top: var(--space-2);
+    left: var(--space-2);
+  }
+  .map-controls .btn { padding: var(--space-2); font-size: 14px; }
+
+  /* Drone control bar at bottom */
+  .drone-control-bar {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .drone-control-bar select { max-width: 140px; }
+}
+
+/* ══════════════════════════════════════
+   PHONE (≤480px)
+   ══════════════════════════════════════ */
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+
+  .app-header { padding: var(--space-1) var(--space-2); }
+
+  .header-logo svg { width: 24px; height: 24px; }
+  .header-title { font-size: var(--text-sm); }
+  .header-subtitle { display: none; }
+
+  /* Nav: icon-only fitting */
+  .mode-nav .tab { font-size: 10px; padding: 5px 8px; }
+
+  /* Command map: taller */
+  .command-layout { grid-template-rows: 60vh auto; }
+  #command-map { min-height: 250px; }
+
+  /* Stats: 2-col tighter */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
+  .stats-bar .card-sm {
+    padding: var(--space-1);
+    font-size: 11px;
+  }
+
+  /* Sidebar */
+  .sidebar-header { padding: var(--space-3); }
+  .sidebar-content { padding: var(--space-3); }
+  .sidebar-tabs { padding: var(--space-1) var(--space-2); }
+
+  /* Household cards */
+  .household-card { padding: var(--space-3); gap: var(--space-3); }
+  .household-score { font-size: var(--text-xl); min-width: 38px; }
+  .household-name { font-size: 12px; }
+  .household-detail { font-size: 10px; }
+
+  /* Drone cards */
+  .drone-card { padding: var(--space-3); gap: var(--space-3); }
+  .drone-icon { width: 36px; height: 36px; }
+  .drone-stats-row { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+
+  /* Emergency quick actions: single col */
+  .emergency-quick {
+    grid-template-columns: 1fr !important;
+  }
+  .emergency-quick-btn {
+    padding: var(--space-3) !important;
+  }
+
+  /* Health form */
+  .health-form { gap: var(--space-3) !important; }
+  .health-input, .health-select, .health-textarea {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+
+  /* Hotline banner */
+  .hotline-banner {
+    flex-direction: column !important;
+    text-align: center;
+    gap: var(--space-2) !important;
+  }
+  .hotline-number { font-size: 24px !important; }
+
+  /* First aid cards */
+  .firstaid-header { flex-wrap: wrap; gap: var(--space-1); }
+
+  /* Medicine cards */
+  .med-card { flex-direction: column; align-items: flex-start; }
+
+  /* Chat */
+  .chat-panel {
+    width: 100vw !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 56px !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 75vh !important;
+  }
+
+  /* Auth modal */
+  .auth-modal-content {
+    width: calc(100vw - 32px) !important;
+    padding: 20px !important;
+  }
+
+  /* Donate full width */
+  #donate-panel {
+    width: 100vw !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: 56px !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  /* Leaflet popups */
+  .leaflet-popup-content-wrapper { max-width: 260px !important; }
+  .leaflet-popup-content { font-size: 11px !important; }
+}
+
+/* ══════════════════════════════════════
+   LANDSCAPE PHONE
+   ══════════════════════════════════════ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .app-header {
+    flex-direction: row;
+    min-height: 40px;
+    padding: var(--space-1) var(--space-3);
+  }
+  .header-right { gap: var(--space-2); }
+
+  .command-layout {
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: 1fr;
+  }
+
+  .main-content { height: calc(100vh - 40px); overflow: hidden; }
+
+  .chat-panel { max-height: 80vh !important; }
+}
+
+/* ══════════════════════════════════════
+   LARGE DESKTOP (≥1440px)
+   ══════════════════════════════════════ */
+@media (min-width: 1440px) {
+  .command-layout {
+    grid-template-columns: 1fr 420px;
+  }
+
+  .volunteer-layout {
+    grid-template-columns: 450px 1fr;
+  }
+
+  .drone-stats-row {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .drone-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ══════════════════════════════════════
+   TOUCH DEVICE IMPROVEMENTS
+   ══════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+  /* Bigger tap targets */
+  .tab { min-height: 44px; min-width: 44px; }
+  .btn { min-height: 40px; }
+  .sidebar-tab { min-height: 38px; }
+  .household-card { min-height: 60px; }
+  .drone-card { min-height: 56px; }
+  .emergency-quick-btn { min-height: 56px; }
+  
+  /* Disable hover effects */
+  .household-card:hover { transform: none; }
+  .drone-card:hover { background: var(--bg-card); }
+
+  /* Scrollbar hide on touch */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+}
+
+/* ══════════════════════════════════════
+   PRINT STYLES
+   ══════════════════════════════════════ */
+@media print {
+  .app-header, .chat-fab, .chat-panel, #donate-fab, #donate-panel,
+  .map-controls, .lora-panel, .drone-control-bar { display: none !important; }
+  
+  body { overflow: visible; background: white; color: black; }
+  #app { height: auto; overflow: visible; }
+  .main-content { overflow: visible; }
+}
